@@ -9,7 +9,6 @@ morgan.token('reqBody', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :reqBody'))
 app.use(cors())
 
-
 //Kovakoodattu lista ihmisistä
 let persons = [
     {
@@ -115,6 +114,7 @@ let persons = [
     res.json(person)
   })
 
-const PORT = 3001
-app.listen(PORT)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`)
+})
