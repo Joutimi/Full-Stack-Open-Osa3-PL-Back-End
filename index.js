@@ -8,6 +8,7 @@ app.use(express.json())
 morgan.token('reqBody', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :reqBody'))
 app.use(cors())
+app.use(static('build'))
 
 //Kovakoodattu lista ihmisistä
 let persons = [
