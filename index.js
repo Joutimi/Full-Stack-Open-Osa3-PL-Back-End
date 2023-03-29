@@ -48,15 +48,10 @@ const { response } = require('express')
   })
 
   // Yksittäisen henkilön haku
-  app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(person => person.id === id)
-
-    if(person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+  app.get('/api/people/:id', (req, res) => {
+    Person.findById(req.params.id).then(person => {
+      res.json(person)
+    })
   })
 
   // Henkilön poisto
@@ -68,7 +63,7 @@ const { response } = require('express')
   })
 
   // Henkilön lisäys
-/*   app.post('/api/persons/', (req, res) => {
+  app.post('/api/people/', (req, res) => {
 
     const body = req.body
 
@@ -89,16 +84,15 @@ const { response } = require('express')
     })
    }
 
-  
-    const person = {
-      name: body.name,
-      number: body.number,
-      id: newId()
-    }
+   const person = new Person({
+    name: body.name,
+    number : body.number,
+   })
+   person.save().then(savedPerson => {
+    res.json(savedPerson)
+   })
 
-    persons = persons.concat(person)
-    res.json(person)
-  }) */
+  })
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
