@@ -55,7 +55,7 @@ const { response } = require('express')
   })
 
   // Henkilön poisto
-  app.delete('/api/persons/:id', (req, res) => {
+  app.delete('/api/people/:id', (req, res) => {
     const id = Number(req.params.id)
     persons = persons.filter(person => person.id !== id)
 
@@ -78,11 +78,11 @@ const { response } = require('express')
     })
    }
 
-   if (persons.find(person => person.name === body.name)) {
+/*    if (persons.find(person => person.name === body.name)) {
     return res.status(400).json({
       error: 'Name must be unique'
     })
-   }
+   } */
 
    const person = new Person({
     name: body.name,
