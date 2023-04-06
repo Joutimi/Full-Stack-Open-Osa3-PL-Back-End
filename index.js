@@ -1,21 +1,19 @@
 const express = require('express')
 const app = express()
-
+const cors = require('cors')
 require('dotenv').config()
 
 const morgan = require('morgan')
-const cors = require('cors')
 
 const Person = require('./models/person')
-
-app.use(express.static('build'))
 app.use(express.json())
 
 morgan.token('reqBody', (request) => JSON.stringify(request.body))
-app.use(morgan(':method :url :status :res[content-length] :response-time ms :reqBody'))
+
 app.use(cors())
 
-const { response } = require('express')
+app.use(morgan(':method :url :status :res[content-length] :response-time ms :reqBody'))
+app.use(express.static('build'))
 
 //Errorhandler
 const errorHandler = (error, request, response, next) => {
@@ -31,7 +29,7 @@ const unknownEndPoint = (request, response) => {
 }
 
 
-// Kutsu juureen tulostaa "Hello World"
+// Kutsu juureen tulostaa "Hello World" jos build ei jostain syystä toimi
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
@@ -45,23 +43,19 @@ app.get('/api/people', (request, response) => {
 
 // /info tulostaa henkilöiden määrän persons-listassa ja pyynnön aikaleiman
 app.get('/info', (req, res) => {
-  const len = persons.length
-  const time = new Date()
-  res.send(`
-      <div>
-      <p> Phonebook has info for ${len} people</p>
-      <p> ${time} </p>
-      </div>
-  `)
+  Person.count({}).then(count => {
+    res.send(`<p> Phonebook has info for ${count} people</p>
+              <p> ${new Date}</p>`)
+  })
 })
 
 // Yksittäisen henkilön haku
 app.get('/api/people/:id', (req, res, next) => {
   Person.findById(req.params.id).then(person => {
     if (person) {
-      response.json(person)
+      res.json(person)
     } else {
-      response.status(404).end()
+      res.status(404).end()
     }
   })
   .catch(error => next(error))
@@ -99,7 +93,21 @@ app.post('/api/people/', (req, res) => {
   person.save().then(savedPerson => {
   res.json(savedPerson)
   })
+})
 
+// Numeron päivitys olemassaolevalle henkilölle
+app.put('/api/people/:id', (req, res) => {
+  const bodi = req.body
+  const person = {
+    name: bodi.name,
+    number: bodi.number,
+  }
+
+  Person.findByIdAndUpdate(req.params.id, person, { new: true})
+  .then(updatePerson => {
+    res.json(updatePerson)
+  })
+  .catch(error => next.error)
 })
 
 app.use(unknownEndPoint)
