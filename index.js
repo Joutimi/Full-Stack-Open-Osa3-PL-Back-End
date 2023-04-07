@@ -18,9 +18,12 @@ app.use(express.static('build'))
 //Errorhandler
 const errorHandler = (error, request, response, next) => {
   console.log(error.message)
-  if (error.name === "CastError") {
+  if (error.name === 'CastError') {
     return response.status(400).send({error : 'malformatted id'})
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error : error.message })
   }
+
   next(error)
 }
 
@@ -71,7 +74,7 @@ app.delete('/api/people/:id', (req, res, next) => {
 
 
 // Henkilön lisäys
-app.post('/api/people/', (req, res) => {
+app.post('/api/people/', (req, res, next) => {
 
   const body = req.body
 
@@ -81,18 +84,19 @@ app.post('/api/people/', (req, res) => {
     })
   }
   if (!body.number) {
-  return res.status(400).json({
-    error: 'Number missing'
-  })
+    return res.status(400).json({
+      error: 'Number missing'
+    })
   }
 
   const person = new Person({
-  name: body.name,
-  number : body.number,
+    name: body.name,
+    number : body.number,
   })
   person.save().then(savedPerson => {
-  res.json(savedPerson)
+    res.json(savedPerson)
   })
+  .catch(error => next(error))
 })
 
 // Numeron päivitys olemassaolevalle henkilölle
