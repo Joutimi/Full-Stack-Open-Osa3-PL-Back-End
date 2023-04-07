@@ -19,7 +19,7 @@ app.use(express.static('build'))
 const errorHandler = (error, request, response, next) => {
   console.log(error.message)
   if (error.name === 'CastError') {
-    return response.status(400).send({error : 'malformatted id'})
+    return response.status(400).send({ error : 'malformatted id' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error : error.message })
   }
@@ -61,15 +61,15 @@ app.get('/api/people/:id', (req, res, next) => {
       res.status(404).end()
     }
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 // Henkilön poisto
 app.delete('/api/people/:id', (req, res, next) => {
-  Person.findByIdAndRemove(req.params.id).then(result => {
+  Person.findByIdAndRemove(req.params.id).then(res => {
     res.status(204).end()
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 
@@ -96,22 +96,22 @@ app.post('/api/people/', (req, res, next) => {
   person.save().then(savedPerson => {
     res.json(savedPerson)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 // Numeron päivitys olemassaolevalle henkilölle
-app.put('/api/people/:id', (req, res) => {
+app.put('/api/people/:id', (req, res, next) => {
   const bodi = req.body
   const person = {
     name: bodi.name,
     number: bodi.number,
   }
 
-  Person.findByIdAndUpdate(req.params.id, person, { new: true})
-  .then(updatePerson => {
-    res.json(updatePerson)
-  })
-  .catch(error => next.error)
+  Person.findByIdAndUpdate(req.params.id, person,{ new: true })
+    .then(updatePerson => {
+      res.json(updatePerson)
+    })
+    .catch(error => next(error))
 })
 
 app.use(unknownEndPoint)
